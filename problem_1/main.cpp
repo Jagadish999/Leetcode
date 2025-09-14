@@ -1,33 +1,33 @@
-#include "Solution.h"
-
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <unordered_map>
 
-void print_two_sum_idxs(std::vector <int> &);
+using namespace std;
+
+vector<int> twoSum(vector<int> &, int);
 
 int main() {
-    Solution soln;
+    vector<int> nums {3, 2, 4};
+    int target = 6;
 
-    std::vector<int> test_case_vector_1 = {2,7,11,15};
-    int test_case_target_1 = 9;
-
-    std::vector<int> test_case_vector_2 = {3, 2, 4};
-    int test_case_target_2 = 6;
-
-    std::vector<int> test_case_vector_3 = {3, 3};
-    int test_case_target_3 = 6;
-
-    std::vector<int> result_1 = soln.twoSum(test_case_vector_1, test_case_target_1);
-    std::vector<int> result_2 = soln.twoSum(test_case_vector_2, test_case_target_2);
-    std::vector<int> result_3 = soln.twoSum(test_case_vector_3, test_case_target_3);
-
-    print_two_sum_idxs(result_1);
-    print_two_sum_idxs(result_2);
-    print_two_sum_idxs(result_3);
+    vector<int> sum_idx = twoSum(nums, target);
 
     return 0;
 }
 
-void print_two_sum_idxs(std::vector <int> & nums) {
-    std::cout << "Number is: " << nums[0] << " and " << nums[1] << std::endl;
+
+std::vector<int> twoSum(std::vector<int> & nums, int target) {
+    unordered_map<int, int> prev_nums;
+
+    for (int num_count = 0; num_count < nums.size(); num_count++) {
+        int required = target - nums[num_count];
+
+        if (prev_nums.find(required) != prev_nums.end()) {
+            return {prev_nums[required], num_count};
+        }
+
+        prev_nums[nums[num_count]] = num_count;    
+    }
+
+    return vector<int> {-1, -1};
 }
