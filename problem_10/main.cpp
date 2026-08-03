@@ -1,31 +1,75 @@
+/*
+Problem 10: Regular Experssion Matching
+
+Here,
+'.' Matches any single charachers
+'*' Matches zero or more of the preceding element.
+
+
+Example 1:
+s = "aa", p = "a",
+output = false
+
+Example 2:
+s = "aa", p = "a*"
+output = true
+
+Example 3:
+s = "ab", p = ".*"
+output = true
+
+Example 4:
+s = "aab", p = "c*a*b*"
+output = true
+*/
+
+#include <string>
 #include <functional>
 #include <iostream>
-#include <string>
 #include <vector>
 
 using namespace std;
 
 bool isMatch(string, string);
 
-
 int main() {
-    string s1 = "aa";
-    string p1 = "a";
 
-    cout << "String: " << s1 << " Pattern: " << p1 << endl;
-    cout << "Is Match: " << isMatch(s1, p1) << endl;
+    string m_s1 = "aa";
+    string m_p1 = "a";
 
-    string s2 = "aa";
-    string p2 = "a*";
+    // cout << "String is: " << m_s1 << endl;
+    // cout << "Pattern is: " << m_p1 << endl << endl;
 
-    cout << "String: " << s2 << " Pattern: " << p2 << endl;
-    cout << "Is Match: " << isMatch(s2, p2) << endl;
+    // bool m_is_matcing_1 = isMatch(m_s1, m_p1);
+    // cout << "Is Match: " << m_is_matcing_1 << endl;
 
-    string s3 = "ab";
-    string p3 = ".*";
+    string m_s2 = "aa";
+    string m_p2 = "a*";
 
-    cout << "String: " << s3 << " Pattern: " << p3 << endl;
-    cout << "Is Match: " << isMatch(s3, p3) << endl;
+    cout << "String is: " << m_s2 << endl;
+    cout << "Pattern is: " << m_p2 << endl << endl;
+
+    bool m_is_matching_2 = isMatch(m_s2, m_p2);
+    cout << "Is Match: " << m_is_matching_2 << endl;
+
+    string m_s3 = "aab";
+    string m_p3 = "c*a*b";
+
+    // cout << "String is: " << m_s3 << endl;
+    // cout << "Pattern is: " << m_p3 << endl << endl;
+
+    // bool m_is_matching_3 = isMatch(m_s3, m_p3);
+    // cout << "Is Match: " << m_is_matching_3 << endl;
+
+
+    string m_s4 = "ab";
+    string m_p4 = ".*c";
+
+    // cout << "String is: " << m_s4 << endl;
+    // cout << "Pattern is: " << m_p4 << endl << endl;
+
+    // bool m_is_matching_4 = isMatch(m_s4, m_p4);
+    // cout << "Is Match: " << m_is_matching_4 << endl;
 
     return 0;
 }
@@ -35,37 +79,38 @@ bool isMatch(string s, string p) {
     int m_str_len = s.size();
     int m_ptn_len = p.size();
 
-    vector<vector<int>> memo(m_str_len + 1, vector<int> (m_ptn_len + 1, -1)) ;
+    vector<vector<int>> memo(m_str_len + 1, vector(m_ptn_len + 1, -1));
 
-    function <bool(int, int)> dfs = [&] (int p_str_idx, int p_ptn_idx) -> bool {
-        if (p_str_idx >= m_str_len && p_ptn_idx >= m_ptn_len) {
+    function <bool(int, int)> match_str_and_ptn = [&](int p_str_idx, int p_ptn_idx) -> bool {
+        // First Univesal condition of bot index is overflowing then it is true
+        if (p_str_idx >= m_str_len && p_ptn_idx >= m_ptn_len){
             return true;
-        }
-
-        if (p_ptn_idx >= m_ptn_len) {
+        } 
+            
+        // Pattern Index is overflowing
+        if (p_ptn_idx >= m_ptn_len){
             return false;
         }
 
-        if(memo[p_str_idx][p_ptn_idx] != -1) {
-            return memo[p_str_idx][p_ptn_idx] == 1;
+        if (memo[p_str_idx][p_ptn_idx] != -1) return memo[p_str_idx][p_ptn_idx] == 1;
+       
+        // Check if pattern matches or not, p_str should be in bound
+        bool is_current_char_matching = p_str_idx < m_str_len && (s[p_str_idx] == p[p_ptn_idx] || p[p_ptn_idx] == '.');
+
+        bool m_result = false;
+        // If Next char in pattern has star, need to explore two possiblity
+        // It can be either empty or repeate preceding character infinite time
+        if (p[p_ptn_idx + 1] == '*') {
+            m_result = (is_current_char_matching && match_str_and_ptn(p_str_idx + 1, p_ptn_idx)) || match_str_and_ptn(p_str_idx, p_ptn_idx + 2);
+        }
+        else if (is_current_char_matching) {
+            m_result = match_str_and_ptn(p_str_idx + 1, p_ptn_idx + 1);
         }
 
-        bool is_matching = p_str_idx < m_str_len && (p[p_ptn_idx] == '.' || s[p_str_idx] == p[p_ptn_idx]);
+        memo[p_str_idx][p_ptn_idx] = m_result ? 1 : 0;
 
-        bool res;
-        if (p_ptn_idx + 1 < m_ptn_len && p[p_ptn_idx + 1] == '*') {
-            res = dfs(p_str_idx, p_ptn_idx + 2) || (is_matching && dfs(p_str_idx + 1, p_ptn_idx));
-        }
-        else {
-            res = is_matching && dfs(p_str_idx + 1, p_ptn_idx + 1);
-        }
-
-        memo[p_str_idx][p_ptn_idx] = res ? 1 : 0;
-        
-        return res;
+        return m_result;
     };
 
-    return dfs(0, 0);
+    return match_str_and_ptn(0, 0);
 }
-
-
